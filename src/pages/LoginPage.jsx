@@ -15,6 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { db } from "@/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+// Change this line in LoginPage.jsx
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.email({
@@ -33,6 +37,8 @@ const formSchema = z.object({
 export function LoginPage() {
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate(); 
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -57,8 +63,11 @@ export function LoginPage() {
       } else {
         const internData = querySnapshot.docs[0].data();
         const internId = querySnapshot.docs[0].id;
-        console.log("Login successful for:", internData.name);
-        console.log("Intern ID:", internId);
+        
+  login({ id: internId, ...internData });
+
+  
+  navigate("/dashboard");
       }
     } catch (err) {
       console.error("Error logging in:", err);
